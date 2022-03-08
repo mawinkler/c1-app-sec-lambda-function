@@ -1,0 +1,123 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: An Image Classification app using Lambda with a vulnerability for demos.
+
+Parameters:
+  EcrImageUri:
+    Description: ECR image URI
+    Type: String
+    Default: <AWS ACCOUNT ID>.dkr.ecr.<AWS REGION>.amazonaws.com/hello-world:v2
+
+  TrendApKey:
+    Description: Application Security Group Key
+    Type: String
+    Default: <YOUR GROUP KEY>
+
+  TrendApSecret:
+    Description: Application Security Group Secret
+    Type: String
+    Default: <YOUR GROUP SECRET>
+
+  TrendApReadyTimeout:
+    Description: Application Security Ready Timeout
+    Type: Number
+    Default: 30
+
+  TrendApHelloUrl:
+    Description: Application Security Hello URL
+    Type: String
+    Default: https://agents.<CLOUD ONE REGION>.application.cloudone.trendmicro.com/
+
+Resources:
+  ApiGateway:
+    Type: "AWS::ApiGateway::RestApi"
+    Properties:
+      Name: "ApplicationSecuritySampleApp"
+      Description: "API Gateway for a sample app using Application Security"
+      BinaryMediaTypes:
+      - "multipart/form-data"
+
+  ApiGatewayRootMethod:
+    Type: "AWS::ApiGateway::Method"
+    Properties:
+      AuthorizationType: "NONE"
+      HttpMethod: "ANY"
+      Integration:
+        IntegrationHttpMethod: "POST"
+        Type: "AWS_PROXY"
+        Uri: !Sub
+          - "arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${lambdaArn}/invocations"
+          - lambdaArn: !GetAtt "LambdaApiGatewayHandler.Arn"
+      ResourceId: !GetAtt "ApiGateway.RootResourceId"
+      RestApiId: !Ref "ApiGateway"
+
+  ApiGatewayDeployment:
+    Type: "AWS::ApiGateway::Deployment"
+    DependsOn:
+      - "ApiGatewayRootMethod"
+    Properties:
+      RestApiId: !Ref "ApiGateway"
+      StageName: "release"
+
+  LambdaApiGatewayHandler:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      Description: "Simple API Gateway Handler"
+      Environment:
+        Variables:
+          TREND_AP_KEY: !Ref 'TrendApKey'
+          TREND_AP_SECRET: !Ref 'TrendApSecret'
+          TREND_AP_READY_TIMEOUT: !Ref 'TrendApReadyTimeout'
+          TREND_AP_HELLO_URL: !Ref 'TrendApHelloUrl'
+      PackageType: Image
+      Code:
+        ImageUri: !Ref 'EcrImageUri'
+      Architectures:
+        - x86_64
+      MemorySize: 512
+      Timeout: 15
+      Role: !GetAtt "LambdaApiGatewayIAMRole.Arn"
+
+  LambdaApiGatewayInvokePermission:
+    Type: "AWS::Lambda::Permission"
+    Properties:
+      Action: "lambda:InvokeFunction"
+      FunctionName: !GetAtt "LambdaApiGatewayHandler.Arn"
+      Principal: "apigateway.amazonaws.com"
+      SourceArn: !Sub "arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGateway}/*/*/"
+
+  LambdaApiGatewayIAMRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+        - Action: "sts:AssumeRole"
+          Effect: "Allow"
+          Principal:
+            Service: "lambda.amazonaws.com"
+      Policies:
+      - PolicyName: "lambda"
+        PolicyDocument:
+          Version: "2012-10-17"
+          Statement:
+          - Effect: Allow
+            Action:
+            - "cloudwatch:PutMetricData"
+            Resource: "*"
+          - Effect: "Allow"
+            Action:
+            - "logs:CreateLogGroup"
+            - "logs:CreateLogStream"
+            - "logs:PutLogEvents"
+            Resource: arn:aws:logs:*:*:*
+
+  LambdaApiGatewayHandlerLogGroup:
+      Type: "AWS::Logs::LogGroup"
+      Properties:
+          LogGroupName: !Join ["/", ["/aws/lambda", !Ref 'LambdaApiGatewayHandler' ]]
+          RetentionInDays: 3
+
+
+Outputs:
+  ApiGatewayInvokeURL:
+    Value: !Sub "https://${ApiGateway}.execute-api.${AWS::Region}.amazonaws.com/release"

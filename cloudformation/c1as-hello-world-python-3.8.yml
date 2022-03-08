@@ -1,6 +1,32 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: An Image Classification app using Lambda with a vulnerability for demos.
 
+Parameters:
+  TrendApKey:
+    Description: Application Security Group Key
+    Type: String
+    Default: <YOUR GROUP KEY>
+
+  TrendApSecret:
+    Description: Application Security Group Secret
+    Type: String
+    Default: <YOUR GROUP SECRET>
+
+  TrendApReadyTimeout:
+    Description: Application Security Ready Timeout
+    Type: Number
+    Default: 30
+
+  TrendApHelloUrl:
+    Description: Application Security Hello URL
+    Type: String
+    Default: https://agents.<CLOUD ONE REGION>.application.cloudone.trendmicro.com/
+
+  TrendApLambdaLayer:
+    Description: Application Security Protection Layer
+    Type: String
+    Default: arn:aws:lambda:eu-central-1:800880067056:layer:CloudOne-ApplicationSecurity-python:1
+
 Resources:
   ApiGateway:
     Type: "AWS::ApiGateway::RestApi"
@@ -38,22 +64,15 @@ Resources:
       Description: "Simple API Gateway Handler"
       Environment:
         Variables:
-          TREND_AP_KEY: f093762f-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-          TREND_AP_SECRET: fe7c5ef2-xxxx-xxxx-xxxx-xxxxxxxxxxxx
-          TREND_AP_READY_TIMEOUT: 30
-          TREND_AP_TRANSACTION_FINISH_TIMEOUT: 10
-          TREND_AP_MIN_REPORT_SIZE: 1
-          TREND_AP_INITIAL_DELAY_MS: 1
-          TREND_AP_MAX_DELAY_MS: 100
-          TREND_AP_HTTP_TIMEOUT: 5
-          TREND_AP_PREFORK_MODE: False
-          TREND_AP_CACHE_DIR: /tmp/trend_cache
-          TREND_AP_HELLO_URL: https://agents.de-1.application.cloudone.trendmicro.com/
+          TREND_AP_KEY: !Ref 'TrendApKey'
+          TREND_AP_SECRET: !Ref 'TrendApSecret'
+          TREND_AP_READY_TIMEOUT: !Ref 'TrendApReadyTimeout'
+          TREND_AP_HELLO_URL: !Ref 'TrendApHelloUrl'
           AWS_LAMBDA_EXEC_WRAPPER: /opt/trend_app_protect
       Runtime: python3.8
       Handler: index.handler
       Layers:
-        - arn:aws:lambda:eu-central-1:800880067056:layer:CloudOne-ApplicationSecurity-python:1
+        - !Ref 'TrendApLambdaLayer'
       Code:
         ZipFile: |
           def handler(event, context):
