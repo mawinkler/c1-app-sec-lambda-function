@@ -153,7 +153,7 @@ aws ecr create-repository \
   --image-tag-mutability MUTABLE
 
 # Tag & push
-docker tag hello-world:latest \
+docker tag hello-world:v1 \
   ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/hello-world:v1
 docker push \
   ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/hello-world:v1
@@ -206,7 +206,7 @@ aws lambda create-function \
   --region ${AWS_REGION} \
   --function-name hello-world \
   --package-type Image \
-  --code ImageUri=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/hello-world:latest \
+  --code ImageUri=${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/hello-world:v1 \
   --role arn:aws:iam::${AWS_ACCOUNT_ID}:role/LambdaBasicExecutionRole
 ```
 
