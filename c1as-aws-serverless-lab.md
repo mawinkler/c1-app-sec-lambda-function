@@ -2,7 +2,6 @@
 
 - [Protect a containerized Lambda with Application Security](#protect-a-containerized-lambda-with-application-security)
   - [Lab Requirements](#lab-requirements)
-  - [Container Lambda](#container-lambda)
   - [Basic Workflow](#basic-workflow)
     - [Build the Container Image](#build-the-container-image)
     - [Publish the Image on ECR](#publish-the-image-on-ecr)
@@ -14,31 +13,14 @@
     - [Review the Logs](#review-the-logs)
     - [Bonus](#bonus)
   - [Tear Down](#tear-down)
+  - [Appendix](#appendix)
+  - [Container Lambda](#container-lambda)
 
 ## Lab Requirements
 
 I recommend you to either work in a Cloud9 environment or locally on your system.
 
 If working locally, make sure to have an AWS CLI and Docker available.
-
-## Container Lambda
-
-Links:
-
-- <https://docs.aws.amazon.com/lambda/latest/dg/images-create.html>
-- <https://docs.aws.amazon.com/lambda/latest/dg/configuration-images.html>
-
-You can use an AWS provided base image or an alternative base image, such as the Application Security images :-), which we will do later in this lab.
-
-Lambda supports images up to 10 GB in size.
-
-To deploy a container image to Lambda, note the following requirements:
-
-- The container image must implement the Lambda Runtime API. The AWS open-source runtime interface clients implement the API. You can add a runtime interface client to your preferred base image to make it compatible with Lambda.
-- The container image must be able to run on a read-only file system. Your function code can access a writable /tmp directory with 512 MB of storage.
-- The default Lambda user must be able to read all the files required to run your function code. Lambda follows security best practices by defining a default Linux user with least-privileged permissions. Verify that your application code does not rely on files that other Linux users are restricted from running.
-- Lambda supports only Linux-based container images.
-- Lambda provides multi-architecture base images. However, the image you build for your function must target only one of the architectures. Lambda does not support functions that use multi-architecture container images.
 
 ## Basic Workflow
 
@@ -411,3 +393,24 @@ Lab done.
 There's no real need to delete everything, since Lambda is charged on usage. If you still want to clean up, head over to `CloudFormation` and delete the newly created stack.
 
 Afterwards, go to ECR and delete the repository `hello-world`.
+
+## Appendix
+
+## Container Lambda
+
+Links:
+
+- <https://docs.aws.amazon.com/lambda/latest/dg/images-create.html>
+- <https://docs.aws.amazon.com/lambda/latest/dg/configuration-images.html>
+
+You can use an AWS provided base image or an alternative base image, such as the Application Security images :-), which we will do later in this lab.
+
+Lambda supports images up to 10 GB in size.
+
+To deploy a container image to Lambda, note the following requirements:
+
+- The container image must implement the Lambda Runtime API. The AWS open-source runtime interface clients implement the API. You can add a runtime interface client to your preferred base image to make it compatible with Lambda.
+- The container image must be able to run on a read-only file system. Your function code can access a writable /tmp directory with 512 MB of storage.
+- The default Lambda user must be able to read all the files required to run your function code. Lambda follows security best practices by defining a default Linux user with least-privileged permissions. Verify that your application code does not rely on files that other Linux users are restricted from running.
+- Lambda supports only Linux-based container images.
+- Lambda provides multi-architecture base images. However, the image you build for your function must target only one of the architectures. Lambda does not support functions that use multi-architecture container images.
