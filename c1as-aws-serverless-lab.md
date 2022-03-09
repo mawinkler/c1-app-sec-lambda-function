@@ -20,7 +20,9 @@
 
 I recommend you to either work in a Cloud9 environment or locally on your system.
 
-If working locally, make sure to have an AWS CLI and Docker available.
+When you go for Cloud9 please create a new instance accepting all the defaults like `Amazon Linux 2` but choose an instance type of `t3.medium`.
+
+If working locally, make sure to have an authenticated AWS CLI and Docker available.
 
 ## Basic Workflow
 
@@ -313,15 +315,15 @@ To create the stack head over to your AWS console and go to the `CloudFormation`
   - `EcrImageUri`
   - `TrendApKey`
   - `TrendApSecret`
-  - `TrendApReadyTimeout`
   - `TrendApHelloUrl`
+- Click `[Next]`
 - Click `[Next]`
 - Check `I acknowledge that AWS CloudFormation might create IAM resources.`
 - Click `[Next]`
 
-After the stack has been created successfully the variable `ApiGatewayInvokeURL` is shown in the Outputs section of the stack.
+After the stack has been created successfully the variable `ApiGatewayInvokeURL` is shown in the `Outputs` section of the stack.
 
-Click on the link and after some seconds our app should open in your browser. Test the Application Security integration by appending `?file=/etc/passwd` to the URL.
+Click on the link and after some (or some more) seconds our app should open in your browser. Test the Application Security integration by appending `?file=/etc/passwd` to the URL. You should get an error message now. Check back to Application Security in your Cloud One account. There should have happened something.
 
 ### Review the Logs
 
@@ -378,7 +380,7 @@ Lastly, head over to `CloudWatch` and click on `Logs` --> `Log Groups`. You will
 
 ### Bonus
 
-If you want to play without containers but so called .zip file archives for the code, you can easily deploy the other CloudFormation templates provided.
+If you want to play without containers but so called *.zip file archives* for the code, you can easily deploy the other CloudFormation templates provided.
 
 The app itself is basically identical, but this time the code resides directly in the template file.
 
