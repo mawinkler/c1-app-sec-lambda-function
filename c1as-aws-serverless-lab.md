@@ -228,7 +228,11 @@ We as Trend do provide base images for [Python](https://gallery.ecr.aws/cloudone
 
 Essentially, the only thing we need to do to our container image is to change the `FROM` statement in our Dockerfile to
 
-`FROM public.ecr.aws/cloudone_application_security/lambda-python:3.7.10-9`
+```Dockerfile
+FROM public.ecr.aws/cloudone_application_security/lambda-python:3.8
+
+...
+```
 
 Then, build, tag & push giving it a new tag.
 
